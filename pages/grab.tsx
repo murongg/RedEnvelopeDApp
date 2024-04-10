@@ -5,6 +5,7 @@ import { ethers } from 'ethers'
 import { abi } from '../utils/abi.json'
 import { addressAbbreviation } from "../utils/wallet"
 import Link from "next/link"
+import Card from '../components/Card';
 
 const GrabPage: NextPage = () => {
 
@@ -26,7 +27,7 @@ const GrabPage: NextPage = () => {
 
   const errMsg = useMemo(() => {
     if (error) {
-      const regex = /reason:([\s\S]*)Contract Call/m ;
+      const regex = /reason:([\s\S]*)Contract Call/m;
       const match = error.message.match(regex);
       return match ? match[1] : '';
     }
@@ -77,55 +78,49 @@ const GrabPage: NextPage = () => {
 
   return (
     <div>
-      <div className="card card-compact bg-gray-50 shadow-sm mt-10 p-4" style={{ width: '450px', height: '300px' }}>
-        <span className='text-gray-500 text-lg'>Envelope ID</span>
-        <div className="card-body w-full flex items-center justify-center">
-          <div className='w-full flex flex-col items-center'>
-            <input type="text" className='bg-transparent outline-none text-6xl text-center' placeholder='0' style={{ maxWidth: '400px' }} onChange={(e) => setId(Number(e.target.value || '0'))} />
-          </div>
+
+      <Card title="Envelope ID">
+        <div className='w-full flex flex-col items-center'>
+          <input type="text" className='bg-transparent outline-none text-6xl text-center' placeholder='0' style={{ maxWidth: '400px' }} onChange={(e) => setId(Number(e.target.value || '0'))} />
         </div>
-      </div>
+      </Card>
 
       {
-        (records as any)?.length ? <div className="card card-compact bg-gray-50 shadow-sm mt-4 p-4" style={{ width: '450px', }}>
-          <span className='text-gray-500 text-lg'>Records</span>
-          <div className="card-body w-full flex items-center justify-center">
-            <div className="overflow-x-auto w-full">
-              <table className="table">
-                {/* head */}
-                <thead>
-                  <tr>
-                    <th>Address</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* row 1 */}
-                  {
-                    (records as any[])?.map((item, index) => {
-                      return (
-                        <tr key={index}>
-                          <td>{addressAbbreviation(item.receiver)}</td>
-                          <td>{ethers.formatEther(item.amount)}ETH</td>
-                        </tr>
-                      )
-                    })
-                  }
-                </tbody>
-              </table>
-            </div>
+        (records as any)?.length ? <Card title="Records">
+          <div className="overflow-x-auto w-full">
+            <table className="table">
+              {/* head */}
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* row 1 */}
+                {
+                  (records as any[])?.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{addressAbbreviation(item.receiver)}</td>
+                        <td>{ethers.formatEther(item.amount)}ETH</td>
+                      </tr>
+                    )
+                  })
+                }
+              </tbody>
+            </table>
           </div>
-        </div> : ''
+        </Card> : ''
       }
 
+
       {
-        transactionEventLog && <div className="card card-compact bg-gray-50 shadow-sm mt-4 p-4" style={{ width: '450px', }}>
-          <span className='text-gray-500 text-lg'>Result</span>
-          <div className="card-body w-full flex items-center justify-center">
-            TX Hash: <Link href={`https://sepolia.etherscan.io/tx/${hash}`} className='text-blue-500'>{addressAbbreviation(hash || '')}</Link>
-            Amount: {ethers.formatEther(transactionEventLog.amount)} ETH<br />
-          </div>
-        </div>
+        transactionEventLog &&
+        <Card title="Result">
+          TX Hash: <Link href={`https://sepolia.etherscan.io/tx/${hash}`} className='text-blue-500'>{addressAbbreviation(hash || '')}</Link>
+          Amount: {ethers.formatEther(transactionEventLog.amount)} ETH<br />
+        </Card>
       }
       <div className="w-full flex items-center justify-center mt-6">
         <button className={`btn btn-primary w-full ${loading ? 'btn-disabled' : ''}`} onClick={() => { handleGrab() }}>

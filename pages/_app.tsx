@@ -7,8 +7,9 @@ import { WagmiProvider } from 'wagmi';
 import {
   sepolia,
 } from 'wagmi/chains';
-import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { darkTheme, getDefaultConfig, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import Layout from '../layouts/layout';
+import { useDark } from '../hooks/dark';
 
 const config = getDefaultConfig({
   appName: 'Red Envelope DApp',
@@ -22,10 +23,11 @@ const config = getDefaultConfig({
 const client = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const isDark = useDark()
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={client}>
-        <RainbowKitProvider>
+        <RainbowKitProvider theme={isDark ? darkTheme() : lightTheme()}>
           <Layout>
             <Component {...pageProps} />
           </Layout>

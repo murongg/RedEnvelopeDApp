@@ -5,6 +5,7 @@ import { ethers } from 'ethers'
 import { abi } from '../utils/abi.json'
 import { addressAbbreviation } from "../utils/wallet"
 import Link from "next/link"
+import Card from '../components/Card';
 
 const CreatePage: NextPage = () => {
 
@@ -91,34 +92,30 @@ const CreatePage: NextPage = () => {
 
   return (
     <div>
-      <div className="card card-compact bg-gray-50 shadow-sm mt-10 p-4" style={{ width: '450px', height: '300px' }}>
-        <span className='text-gray-500 text-lg'>You're sending</span>
-        <div className="card-body w-full flex items-center justify-center">
-          <div className='w-full flex flex-col items-center'>
-            <input type="text" className='bg-transparent outline-none text-6xl text-center' placeholder='0' style={{ maxWidth: '400px' }} onChange={(e) => setAmount(ethers.parseEther(e.target.value || '0'))} />
-            <span className='mt-2 text-gray-500 text-lg'>ETH</span>
-            {!isEnough && <span className='mt-2 text-red-500 text-lg'>Insufficient balance.</span>}
-          </div>
+      <Card title="You're sending">
+        <div className='w-full flex flex-col items-center'>
+          <input type="text" className='bg-transparent outline-none text-6xl text-center' placeholder='0' style={{ maxWidth: '400px' }} onChange={(e) => setAmount(ethers.parseEther(e.target.value || '0'))} />
+          <span className='mt-2 text-gray-500 text-lg'>ETH</span>
+          {!isEnough && <span className='mt-2 text-red-500 text-lg'>Insufficient balance.</span>}
         </div>
-      </div>
+      </Card>
 
-      <div className="card card-compact bg-gray-50 shadow-sm mt-4 p-4" style={{ width: '450px', }}>
-        <span className='text-gray-500 text-lg'>Receivers</span>
-        <div className="card-body w-full flex items-center justify-center">
+      <Card title="Receivers">
+        <div className='w-full flex flex-col items-center'>
           <textarea className="textarea w-full" placeholder="Please separate multiple items using the enter key" style={{ height: '60px' }} onChange={(e) => setReceivers(e.target.value)}></textarea>
           {!isAddresses && receivers !== "" && <span className='mt-2 text-red-500 text-lg'>Invalid address.</span>}
         </div>
-      </div>
+      </Card>
+
 
       {
-        transactionEventLog && <div className="card card-compact bg-gray-50 shadow-sm mt-4 p-4" style={{ width: '450px', }}>
-          <span className='text-gray-500 text-lg'>Result</span>
-          <div className="card-body w-full flex items-center justify-center">
+        transactionEventLog && <Card title="Result">
+          <div className='w-full flex flex-col items-center'>
             TX Hash: <Link href={`https://sepolia.etherscan.io/tx/${hash}`} className='text-blue-500'>{addressAbbreviation(hash || '')}</Link>
             Envelope ID: {transactionEventLog.id.toString()} <br />
             Amount: {ethers.formatEther(transactionEventLog.amount)} ETH<br />
           </div>
-        </div>
+        </Card>
       }
 
       <div className="w-full flex items-center justify-center mt-6">
