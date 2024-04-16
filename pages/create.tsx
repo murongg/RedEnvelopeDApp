@@ -2,17 +2,18 @@ import type { NextPage } from 'next';
 import { useMemo, useState } from "react"
 import { useAccount, useBalance, useWriteContract, useTransactionReceipt, useChainId } from "wagmi"
 import { ethers } from 'ethers'
-import { abi } from '../utils/abi.json'
 import { addressAbbreviation } from "../utils/wallet"
 import Link from "next/link"
 import Card from '../components/Card';
+import { CONTRACT_ABI, CONTRACT_ADDRESS, EnvelopeType } from '../constants/contract';
 
 const CreatePage: NextPage = () => {
 
   const chainId = useChainId()
   const [amount, setAmount] = useState<bigint>(BigInt(0))
+  const [envelopeType, setEnvelopeType] = useState(0)
   const [receivers, setReceivers] = useState('')
-  const { data: hash, writeContract, status, error } = useWriteContract()
+  const { data: hash, writeContractAsync, status, error } = useWriteContract()
 
   const { data: txData } = useTransactionReceipt({
     hash,
@@ -34,17 +35,18 @@ const CreatePage: NextPage = () => {
   const loading = useMemo(() => status === 'pending', [status])
 
   const errMsg = useMemo(() => {
+    console.log(error)
     if (error) {
       const regex = /reason:([\s\S]*)Contract Call/m;
       const match = error.message.match(regex);
-      return match ? match[1] : '';
+      return match ? match[1] : error.message;
     }
   }, [error])
 
 
   const parseLog = () => {
     if (txData) {
-      const iface = new ethers.Interface(abi);
+      const iface = new ethers.Interface(CONTRACT_ABI);
       const log = txData.logs[0]
       const parseLog = iface.parseLog({
         topics: [...log.topics],
@@ -79,12 +81,13 @@ const CreatePage: NextPage = () => {
       return
     }
     const addresses = [...new Set(receivers.split('\n'))]
-    writeContract({
-      address: '0x4e7271c13A3EdE905C72034F6b117F6e57A1A72B',
-      abi,
+    writeContractAsync({
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
       functionName: 'create',
       args: [
-        addresses
+        addresses,
+        envelopeType
       ],
       value: amount
     })
@@ -97,6 +100,14 @@ const CreatePage: NextPage = () => {
           <input type="text" className='bg-transparent outline-none text-6xl text-center' placeholder='0' style={{ maxWidth: '400px' }} onChange={(e) => setAmount(ethers.parseEther(e.target.value || '0'))} />
           <span className='mt-2 text-gray-500 text-lg'>ETH</span>
           {!isEnough && <span className='mt-2 text-red-500 text-lg'>Insufficient balance.</span>}
+        </div>
+      </Card>
+
+      <Card title="Envelope Type">
+        <div className='w-full flex flex-col items-center'>
+          <select className="select select-bordered w-full max-w-xs" onChange={(e) => setEnvelopeType(parseInt(e.target.value))}>
+            {EnvelopeType.map((e) => <option key={e.value} value={e.value}>{e.name}</option>)}
+          </select>
         </div>
       </Card>
 

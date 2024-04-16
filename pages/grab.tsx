@@ -2,10 +2,10 @@ import type { NextPage } from 'next';
 import { useEffect, useMemo, useState } from "react"
 import { useAccount, useBalance, useWriteContract, useTransactionReceipt, useChainId, useReadContract } from "wagmi"
 import { ethers } from 'ethers'
-import { abi } from '../utils/abi.json'
 import { addressAbbreviation } from "../utils/wallet"
 import Link from "next/link"
 import Card from '../components/Card';
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../constants/contract';
 
 const GrabPage: NextPage = () => {
 
@@ -13,8 +13,8 @@ const GrabPage: NextPage = () => {
   const [id, setId] = useState(0)
   const { data: hash, writeContract, status, variables, error } = useWriteContract()
   const { data: records, refetch: getRecordRefetch } = useReadContract({
-    address: '0x4e7271c13A3EdE905C72034F6b117F6e57A1A72B',
-    abi,
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
     args: [id],
     functionName: 'getRecord',
   })
@@ -45,7 +45,7 @@ const GrabPage: NextPage = () => {
 
   const parseLog = () => {
     if (txData) {
-      const iface = new ethers.Interface(abi);
+      const iface = new ethers.Interface(CONTRACT_ABI);
       const log = txData.logs[0]
       const parseLog = iface.parseLog({
         topics: [...log.topics],
@@ -67,8 +67,8 @@ const GrabPage: NextPage = () => {
 
   const handleGrab = () => {
     writeContract({
-      address: '0x4e7271c13A3EdE905C72034F6b117F6e57A1A72B',
-      abi,
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
       functionName: 'grab',
       args: [
         id
